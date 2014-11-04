@@ -1,7 +1,5 @@
 package com.camera360.yuyidong.app2;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -9,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.util.ArrayList;
