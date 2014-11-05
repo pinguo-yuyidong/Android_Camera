@@ -1,99 +1,101 @@
 package com.camera360.yuyidong.fragment.fragment;
 
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.SeekBar;
 
+import com.camera360.yuyidong.fragment.MyActivity;
 import com.camera360.yuyidong.fragment.R;
-import com.camera360.yuyidong.fragment.ui.ButtonImage;
+import com.camera360.yuyidong.fragment.listener.SeekBarChangeListener;
+import com.camera360.yuyidong.fragment.ui.ShowView;
+import com.camera360.yuyidong.fragment.util.CameraManager;
 
-import java.io.IOException;
-
-public class CameraFragment extends Fragment implements SurfaceHolder.Callback{
+public class CameraFragment extends Fragment implements SurfaceHolder.Callback,MyActivity.VolumeCallBack{
 
     /**
      * SurfaceView
      */
-    private SurfaceView mSurfaceView;
+    private ShowView mSurfaceView;
     /**
      * SurfaceHolder
      */
     private SurfaceHolder mSurfaceHolder;
     /**
-     * Camera
+     * seekbar
      */
-    private Camera mCamera;
-    /**
-     * imageView, but the way to use it is to click,like button
-     */
-    private ButtonImage btn_photo;
+    private SeekBar mSeekBar;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.frag_camera,null);
         //找ID
-        mSurfaceView = (SurfaceView) v.findViewById(R.id.surface);
-        btn_photo = (ButtonImage) v.findViewById(R.id.btn_photo);
+        mSurfaceView = (ShowView) v.findViewById(R.id.surface_show);
+        mSeekBar = (SeekBar) v.findViewById(R.id.sb_zoom);
+        //holder
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
+        //传参数
+        mSurfaceView.setmSeekBar(mSeekBar);
+        //设置seekbar监听器
+        mSeekBar.setOnSeekBarChangeListener(new SeekBarChangeListener(mSurfaceView));
         return v;
 
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        mCamera = Camera.open();
-        try {
-            mCamera.setDisplayOrientation(90);
-            mCamera.setPreviewDisplay(mSurfaceHolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //给按钮de OnTouch
-        btn_photo.setmCamera(mCamera);
+        CameraManager.cameraOpen(surfaceHolder);
 
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
-        mCamera.startPreview();
+        CameraManager.cameraPitureSize();
+        CameraManager.cameraShow();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        mCamera.stopPreview();
-        mCamera.release();
-        mCamera=null;
+        CameraManager.cameraClose();
     }
 
 
-    /**
-     * take picture
-     */
-    private Camera.PictureCallback jpeg = new Camera.PictureCallback() {
-
-        @Override
-        public void onPictureTaken(byte[] bytes, Camera camera) {
-            System.out.println("Camera.PictureCallback,,,,,Camera.PictureCallback");
-            mCamera.startPreview();
+    @Override
+    public void getVolumeKey(int keyCode) {
+        int zoomNum = CameraManager.getZoom();
+        switch (keyCode) {
+            // 音量减小
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if(zoomNum<=5 && zoomNum>=0)
+                {
+                    CameraManager.setZoom(0);
+                    mSeekBar.setProgress(0);
+                }
+                else
+                {
+                    CameraManager.setZoom(zoomNum-5);
+                    mSeekBar.setProgress(zoomNum-5);
+                }
+                break;
+            // 音量增大
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if(zoomNum>=95 && zoomNum<=100)
+                {
+                    CameraManager.setZoom(100);
+                    mSeekBar.setProgress(100);
+                }
+                else
+                {
+                    CameraManager.setZoom(zoomNum+5);
+                    mSeekBar.setProgress(zoomNum+5);
+                }
+                break;
         }
-    };
-
-    private Camera.AutoFocusCallback autoFocus = new Camera.AutoFocusCallback()
-    {
-
-        @Override
-        public void onAutoFocus(boolean b, Camera camera) {
-            System.out.println("Camera.AutoFocusCallback,,,,Camera.AutoFocusCallback");
-        }
-    };
-
-
-
+    }
 }

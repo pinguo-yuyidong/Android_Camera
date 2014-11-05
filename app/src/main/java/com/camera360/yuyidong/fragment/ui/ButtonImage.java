@@ -6,11 +6,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.camera360.yuyidong.fragment.R;
+import com.camera360.yuyidong.fragment.util.CameraManager;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -20,11 +24,11 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
 
     private Camera mCamera;
     /**
-     * 记lu按xia时jian
+     * 记录按下的时候的时间戳
      */
-    private long downTime;
+    private long mDownTime;
     /**
-     * 按xia状态
+     * 按下状态
      */
     private static final int MODE_DOWN=1;
     /**
@@ -32,17 +36,17 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
      */
     private static final int MODE_UP=2;
     /**
-     * handler yong来到达时jian就去聚焦
+     * handler 子线程，到达2000，发送message
      */
     private static final int PHOTO_OK=200;
     /**
-     * chushihua mode 状态
+     * 初始化 mode 状态
      */
-    private int mode=0;
+    private int mMode=0;
     /**
-     * 防止thread老循环跳不出来
+     * 单线程池,去运行Runnable
      */
-    private boolean photoFlag=false;
+    ExecutorService mSinglePool = Executors. newSingleThreadExecutor();
     /**
      * handler
      */
@@ -52,13 +56,7 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
             switch (msg.what)
             {
                 case PHOTO_OK:
-                    photoFlag=false;
-                    mCamera.autoFocus(new Camera.AutoFocusCallback() {
-                        @Override
-                        public void onAutoFocus(boolean b, Camera camera) {
-                            Log.v("ButtonImage","autoFocusautoFocusautoFocusautoFocus");
-                        }
-                    });
+                    CameraManager.cameraAutoFocus();//聚焦
                     break;
             }
             super.handleMessage(msg);
@@ -69,6 +67,8 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
         super(context);
         this.setOnTouchListener(this);
     }
+
+
 
     public ButtonImage(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -86,19 +86,15 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
         switch (motionEvent.getAction())
         {
             case MotionEvent.ACTION_DOWN:
-                downTime = System.currentTimeMillis();
-                mode = MODE_DOWN;
-                new Thread(this).start();
+                mDownTime = System.currentTimeMillis();//按下时间
+                mMode = MODE_DOWN;//现在为按下的状态
+                mSinglePool.execute(this);
+                this.setImageDrawable(getResources().getDrawable(R.drawable.btn_cam_pressed));//按压的button图片
                 break;
             case MotionEvent.ACTION_UP:
-                mode = MODE_UP;
-                mCamera.takePicture(null,null,new Camera.PictureCallback() {
-                    @Override
-                    public void onPictureTaken(byte[] bytes, Camera camera) {
-                        Log.v("ButtonImage","takePicturetakePicturetakePicture");
-                        mCamera.startPreview();
-                    }
-                });
+                mMode = MODE_UP;//现在为抬起的状态
+                CameraManager.cameraTakePicture();//拍照
+                this.setImageDrawable(getResources().getDrawable(R.drawable.btn_cam));//normal的button图片
                 break;
         }
         return true;
@@ -106,29 +102,15 @@ public class ButtonImage extends ImageView implements View.OnTouchListener,Runna
 
     @Override
     public void run() {
-        while(true) {
-            long nowTime = System.currentTimeMillis();
-            if (nowTime - downTime >2000 && photoFlag == false && mode == MODE_DOWN) {
-                setPhotoFlag(true);
-                handler.sendEmptyMessage(PHOTO_OK);
-                break;
-            }else if(photoFlag == true || mode != MODE_DOWN)
-            {
-                break;
-            }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        if(mMode == MODE_DOWN){
+            handler.sendEmptyMessage(PHOTO_OK);
+        }
+
     }
 
-    /**
-     * yong同步去设置photoFlag
-     * @param bool
-     */
-    private synchronized void setPhotoFlag(boolean bool)
-    {
-        this.photoFlag = bool;
-    }
-
-    public void setmCamera(Camera mCamera) {
-        this.mCamera = mCamera;
-    }
 }
