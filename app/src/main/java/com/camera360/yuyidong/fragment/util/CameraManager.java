@@ -43,7 +43,7 @@ public class CameraManager {
 
     /**
      * 打开Camera
-     * @param surfaceHolder
+     * @param surfaceHolder surfaceHolder
      */
     public static void cameraOpen(SurfaceHolder surfaceHolder)
     {
@@ -117,6 +117,7 @@ public class CameraManager {
         Camera.Parameters param = sCamera.getParameters();
         param.setJpegQuality(100);
         List<Camera.Size> list = param.getSupportedPictureSizes();
+        //Camera.Size size = list.get(list.size()-1);
         Camera.Size size = list.get(1);
         param.setPictureSize(size.width,size.height);
         sCamera.setParameters(param);
@@ -124,7 +125,7 @@ public class CameraManager {
 
     /**
      * 获得最大的Zoom的值
-     * @return
+     * @return 返回Zoom最大值
      */
     public static int getTotalZoom()
     {
@@ -204,7 +205,7 @@ public class CameraManager {
      * @return 返回目录地址
      */
     public static String getDir()
-    {
+    {//TODO:这里需要处理，，地址没有的话，，，，骚后处理
         getDirPath();
         return sDir.toString();
     }
@@ -214,7 +215,7 @@ public class CameraManager {
      * @param bytes 照片的byte数组
      */
     private synchronized static void savePicture(byte[] bytes) throws IOException {
-        if(sDir != null)//有SD卡
+        if(null != sDir)//有SD卡
         {
             //文件名的准备
             Date date = new Date();

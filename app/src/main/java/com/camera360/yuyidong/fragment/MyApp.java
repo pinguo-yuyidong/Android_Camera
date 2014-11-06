@@ -2,7 +2,7 @@ package com.camera360.yuyidong.fragment;
 
 import android.app.Application;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
@@ -16,12 +16,10 @@ public class MyApp extends Application {
         super.onCreate();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
                 .threadPoolSize(5)
+                .memoryCache(new LruMemoryCache(2 * 100 * 1024))
                 .denyCacheImageMultipleSizesInMemory()
                 .tasksProcessingOrder(QueueProcessingType.FIFO)
                 .build();
         ImageLoader.getInstance().init(config);
-//        DisplayImageOptions options = new DisplayImageOptions.Builder()
-//                .cacheInMemory(true).showImageOnLoading(R.drawable.ic_launcher)
-//                .showImageOnFail(R.drawable.ic_launcher).build();
     }
 }

@@ -11,11 +11,12 @@ import android.view.WindowManager;
 
 import com.camera360.yuyidong.fragment.fragment.CameraFragment;
 import com.camera360.yuyidong.fragment.fragment.PicturesFragment;
+import com.camera360.yuyidong.fragment.fragment.ShowPicturesFragment;
 
 
 public class MyActivity extends ActionBarActivity {
-    private FragmentManager fm;
-    private FragmentTransaction ft;
+    private FragmentManager mFragmentManager;
+    private FragmentTransaction mFragmentTransaction;
     private Fragment mCameraFragment;
     private Fragment mPictureFrament;
     private VolumeCallBack mVolumeCallBack;
@@ -26,19 +27,20 @@ public class MyActivity extends ActionBarActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);//去掉信息栏
         setContentView(R.layout.activity_my);
         //设置Fragment
-//        mCameraFragment = new CameraFragment();
+        mCameraFragment = new CameraFragment();
         mPictureFrament = new PicturesFragment();
-        fm = getSupportFragmentManager();
-        ft = fm.beginTransaction();
-        ft.replace(R.id.frame_show,mPictureFrament);
-        ft.commit();
+        ShowPicturesFragment f = new ShowPicturesFragment();
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentTransaction = mFragmentManager.beginTransaction();
+        mFragmentTransaction.replace(R.id.frame_show,mPictureFrament);
+        mFragmentTransaction.commit();
         //设置音量键的回调
         mVolumeCallBack = (VolumeCallBack) mCameraFragment;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        mVolumeCallBack.getVolumeKey(keyCode);
+        mVolumeCallBack.getVolumeKey(keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK){
             finish();
         }
