@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Environment;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.io.File;
@@ -94,9 +95,16 @@ public class CameraManager {
      */
     public static void cameraTakePicture()
     {
-        if(sShowFlag) {
-            sCamera.takePicture(null, null, jpeg);
+        try{
+            if(sShowFlag) {
+                sCamera.takePicture(null, null, jpeg);
+            }
+        }catch (RuntimeException e ){
+            //防止点击完拍照后又连续点击拍照的BUG
+            Log.v("CameraManager","cameraTakePicture");
+            e.getStackTrace();
         }
+
     }
 
     /**
@@ -150,8 +158,12 @@ public class CameraManager {
      */
     public static int getZoom()
     {
-        Camera.Parameters param = sCamera.getParameters();
-        return (param.getZoom()*100)/sZoomTotal;
+        if(sCamera != null) {
+            Camera.Parameters param = sCamera.getParameters();
+            return (param.getZoom() * 100) / sZoomTotal;
+        }else{
+            return 0;
+        }
     }
 
 
@@ -205,7 +217,7 @@ public class CameraManager {
      * @return 返回目录地址
      */
     public static String getDir()
-    {//TODO:这里需要处理，，地址没有的话，，，，骚后处理
+    {//TODO:这里需要处理，，地址没有的话，，，，稍后处理
         getDirPath();
         return sDir.toString();
     }

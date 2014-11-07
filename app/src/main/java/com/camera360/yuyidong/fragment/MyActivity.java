@@ -11,14 +11,14 @@ import android.view.WindowManager;
 
 import com.camera360.yuyidong.fragment.fragment.CameraFragment;
 import com.camera360.yuyidong.fragment.fragment.PicturesFragment;
-import com.camera360.yuyidong.fragment.fragment.ShowPicturesFragment;
+import com.camera360.yuyidong.fragment.fragment.ShowPictureFragment;
+import com.camera360.yuyidong.fragment.util.DialogLoadingManager;
 
 
 public class MyActivity extends ActionBarActivity {
     private FragmentManager mFragmentManager;
     private FragmentTransaction mFragmentTransaction;
     private Fragment mCameraFragment;
-    private Fragment mPictureFrament;
     private VolumeCallBack mVolumeCallBack;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,22 +28,30 @@ public class MyActivity extends ActionBarActivity {
         setContentView(R.layout.activity_my);
         //设置Fragment
         mCameraFragment = new CameraFragment();
-        mPictureFrament = new PicturesFragment();
-        ShowPicturesFragment f = new ShowPicturesFragment();
         mFragmentManager = getSupportFragmentManager();
         mFragmentTransaction = mFragmentManager.beginTransaction();
-        mFragmentTransaction.replace(R.id.frame_show,mPictureFrament);
+        mFragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+//        mFragmentTransaction.setCustomAnimations(android.R.animator.fade_in,android.R.animator.fade_out);
+        mFragmentTransaction.replace(R.id.frame_show,mCameraFragment);
+        mFragmentTransaction.addToBackStack(null);
         mFragmentTransaction.commit();
         //设置音量键的回调
         mVolumeCallBack = (VolumeCallBack) mCameraFragment;
+        //设置loading的dialog
+        DialogLoadingManager.setActivity(MyActivity.this);
+
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        mVolumeCallBack.getVolumeKey(keyCode);
         if(keyCode == KeyEvent.KEYCODE_BACK){
-            finish();
+            if (mFragmentManager.getBackStackEntryCount() == 1) {
+                finish();
+            }else{
+                mFragmentManager.popBackStack();
+            }
         }
+        mVolumeCallBack.getVolumeKey(keyCode);
         return true;
     }
 

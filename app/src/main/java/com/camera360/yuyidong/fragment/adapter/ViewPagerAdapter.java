@@ -1,15 +1,23 @@
 package com.camera360.yuyidong.fragment.adapter;
 
+import android.app.Dialog;
+import android.graphics.Bitmap;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.camera360.yuyidong.fragment.R;
-import com.camera360.yuyidong.fragment.ui.ZoomView;
-import com.camera360.yuyidong.fragment.util.CameraManager;
+import com.camera360.yuyidong.fragment.ui.ZoomPictureImageView;
+import com.camera360.yuyidong.fragment.util.DialogLoadingManager;
 import com.camera360.yuyidong.fragment.util.PicturesManager;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,11 +34,15 @@ public class ViewPagerAdapter extends PagerAdapter {
     /**
      * 存放实例话了的Fragment
      */
-    private Map<Integer,ZoomView> mMap;
+    private Map<Integer, ZoomPictureImageView> mMap;
     /**
      * 为了打出inflate
      */
     private FragmentActivity mActivity;
+    /**
+     * 只有第一次加载的时候才显示loading界面
+     */
+    private boolean mFirstTimeLoadingFlag = true;
 
     /**
      * activity是为了inflate
@@ -38,7 +50,7 @@ public class ViewPagerAdapter extends PagerAdapter {
      */
     public ViewPagerAdapter(FragmentActivity activity) {
         mPaths = PicturesManager.getPaths();
-        mMap = new HashMap<Integer, ZoomView>();
+        mMap = new HashMap<Integer, ZoomPictureImageView>();
         this.mActivity = activity;
     }
 
@@ -49,11 +61,32 @@ public class ViewPagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View v = mActivity.getLayoutInflater().inflate(R.layout.frag_infopicture,null);
-        ZoomView zoomView = (ZoomView) v.findViewById(R.id.img_zoomimage);
-       // zoomView.setmBitmap(PicturesManager.getBitmapFromSD(CameraManager.getDir()+"20141106102834.jpg"));
-        ImageLoader.getInstance().displayImage("file:"+ File.separator+mPaths[position],zoomView);
-        mMap.put(position,zoomView);
+        View v = mActivity.getLayoutInflater().inflate(R.layout.item_viewpager_picture,null);
+        ZoomPictureImageView zoomPictureImageView = (ZoomPictureImageView) v.findViewById(R.id.img_zoomimage);
+        ImageLoader.getInstance().displayImage("file:"+ File.separator+mPaths[position], zoomPictureImageView,new ImageLoadingListener() {
+
+            @Override
+            public void onLoadingStarted(String s, View view) {
+                if(mFirstTimeLoadingFlag){
+                    DialogLoadingManager.showDialogLoading();
+                    mFirstTimeLoadingFlag = false;
+                }
+            }
+
+            @Override
+            public void onLoadingFailed(String s, View view, FailReason failReason) {
+            }
+
+            @Override
+            public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                DialogLoadingManager.cancelDialogLoading();
+            }
+
+            @Override
+            public void onLoadingCancelled(String s, View view) {
+            }
+        });
+        mMap.put(position, zoomPictureImageView);
         container.addView(v);
         return v;
     }

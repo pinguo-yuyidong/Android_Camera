@@ -2,6 +2,8 @@ package com.camera360.yuyidong.fragment.fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,16 +26,14 @@ public class PicturesFragment extends Fragment{
      */
     private LayoutInflater mInflater;
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mInflater = getActivity().getLayoutInflater();
         View v = inflater.inflate(R.layout.frag_allpictures,null);
         mGridView = (GridView) v.findViewById(R.id.grid_allpictures);
         mGridView.setAdapter(new GridViewAdapter(inflater,mGridView));
-        mGridView.setOnItemClickListener(new GridViewItemClickListener());
+        mGridView.setOnItemClickListener(new GridViewItemClickListener(getActivity()));
         return v;
-
     }
 
 

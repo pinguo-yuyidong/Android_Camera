@@ -4,6 +4,4 @@
     android:layout_height="match_parent"
     tools:context=".MyActivity"
     android:id="@+id/frame_show">
-
-
 </FrameLayout>

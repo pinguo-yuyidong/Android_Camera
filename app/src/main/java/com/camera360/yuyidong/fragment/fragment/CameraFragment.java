@@ -12,7 +12,7 @@ import android.widget.SeekBar;
 import com.camera360.yuyidong.fragment.MyActivity;
 import com.camera360.yuyidong.fragment.R;
 import com.camera360.yuyidong.fragment.listener.SeekBarChangeListener;
-import com.camera360.yuyidong.fragment.ui.ShowView;
+import com.camera360.yuyidong.fragment.ui.ShowCameraSurfaceView;
 import com.camera360.yuyidong.fragment.util.CameraManager;
 
 public class CameraFragment extends Fragment implements SurfaceHolder.Callback,MyActivity.VolumeCallBack{
@@ -20,7 +20,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,M
     /**
      * SurfaceView
      */
-    private ShowView mSurfaceView;
+    private ShowCameraSurfaceView mSurfaceView;
     /**
      * SurfaceHolder
      */
@@ -35,13 +35,14 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,M
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.frag_camera,null);
         //找ID
-        mSurfaceView = (ShowView) v.findViewById(R.id.surface_show);
+        mSurfaceView = (ShowCameraSurfaceView) v.findViewById(R.id.surface_show);
         mSeekBar = (SeekBar) v.findViewById(R.id.sb_zoom);
         //holder
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
         //传参数
         mSurfaceView.setmSeekBar(mSeekBar);
+        mSurfaceView.setmFragmentActivity(getActivity());
         //设置seekbar监听器
         mSeekBar.setOnSeekBarChangeListener(new SeekBarChangeListener(mSurfaceView));
         return v;

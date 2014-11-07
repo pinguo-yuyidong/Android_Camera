@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MyActivity">
 
-    <com.camera360.yuyidong.fragment.ui.ShowView
+    <com.camera360.yuyidong.fragment.ui.ShowCameraSurfaceView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/surface_show"/>
@@ -30,7 +30,7 @@
             android:layout_height="30dip"
             android:layout_marginBottom="30dip"
             android:max="100"/>
-        <com.camera360.yuyidong.fragment.ui.ButtonImage
+        <com.camera360.yuyidong.fragment.ui.TakePictureButtonImageView
             android:id="@+id/btn_photo"
             android:background="@drawable/btn_camera"
             android:layout_width="wrap_content"
